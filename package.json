@@ -1,0 +1,32 @@
+{
+  "name": "checkdeps",
+  "version": "1.0.0",
+  "description": "check dependencies",
+  "main": "./dist/index.js",
+  "bin": {
+    "checkdeps": "./dist/cli/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "preinstall": "checkdeps",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kirill Lebedev <lebedevki@lad24.ru>",
+  "license": "MIT",
+  "publishConfig": {
+    "@npm:registry": "https://glab.lad24.ru/api/v4/projects/609/packages/npm/"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.3",
+    "npmlog": "^6.0.2",
+    "winston": "^3.8.1",
+    "yargs": "^17.5.1"
+  },
+  "devDependencies": {
+    "@npm/eslint-config": "^0.0.5",
+    "eslint": "^8.19.0",
+    "jest": "^28.1.2",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.4"
+  }
+}
