@@ -6,16 +6,16 @@ import logger from './logger';
 
 export const CACHE_PATH = './checkdeps.json';
 export const CURRENT_DATE = dayjs();
-export const MAX_DIFF = 14;
+export const MAX_DIFF_DAYS = 14;
 
-let cache: Record<string, number> = {};
+let CACHE: Record<string, number> = {};
 
 try {
   logger.info('Reading cache');
-  cache = JSON.parse(fs.readFileSync(CACHE_PATH, { encoding: 'utf-8' }));
-  logger.debug('cache', cache);
+  CACHE = JSON.parse(fs.readFileSync(CACHE_PATH, { encoding: 'utf-8' }));
+  logger.debug('cache', CACHE);
 } catch (e) {
   logger.error(e);
 }
 
-export default cache;
+export default CACHE;

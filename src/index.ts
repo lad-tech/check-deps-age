@@ -1,16 +1,36 @@
 import { execSync } from 'child_process';
 import fs from 'node:fs';
 
-import yargs from 'yargs';
-
 import logger from './logger';
 import { INpmConfigArgv } from './types';
-import cache, { CACHE_PATH } from './constants';
+import CACHE, { CACHE_PATH } from './constants';
 import { checker } from './utils/checker';
 
+const filetByIgnore = (arr: string[], ignoreRegexps: string[]) => {
+  return arr.filter((deps) =>
+    ignoreRegexps.reduce((previousValue, currentValue) => {
+      if (deps.match(currentValue)) return false;
+
+      return previousValue;
+    }, true)
+  );
+};
+
 class Index {
-  check = async (argv: yargs.ArgumentsCamelCase<Record<string, unknown>>) => {
-    logger.debug(argv);
+  check = async ({ ignore }: { ignore: string }) => {
+    let ignoreRegexps: string[] = [];
+    try {
+      logger.info('Reading ignore');
+      ignoreRegexps = fs
+        .readFileSync(ignore, { encoding: 'utf-8' })
+        .toString()
+        .trim()
+        .split('\n');
+      logger.debug('Ignore', ignoreRegexps);
+    } catch (e) {
+      logger.error(e);
+    }
+
     const npmConfigArgvRaw = execSync('echo $npm_config_argv', {
       encoding: 'utf-8',
     });
@@ -23,7 +43,7 @@ class Index {
 
       npmConfigArgv.original.shift();
 
-      checker(npmConfigArgv.original);
+      await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
     }
 
     const output = execSync(
@@ -36,10 +56,10 @@ class Index {
 
     logger.debug('found dependencies ', output);
 
-    checker(output);
+    await checker(filetByIgnore(output, ignoreRegexps));
 
     // save cache
-    const data = new Uint8Array(Buffer.from(JSON.stringify(cache)));
+    const data = new Uint8Array(Buffer.from(JSON.stringify(CACHE)));
     fs.writeFileSync(CACHE_PATH, data, { encoding: 'utf-8', flag: 'w' });
   };
 }

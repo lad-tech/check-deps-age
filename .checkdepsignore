@@ -1,0 +1,14 @@
+@babel/*
+@jridgewell/*
+@types/*
+browserslist@4.21.1
+caniuse-lite@1.0.30001365
+electron-to-chromium@1.4.186
+eslint-plugin-prettier@4.2.1
+eslint@8.19.0
+globals@13.16.0
+jsx-ast-utils@3.3.2
+logform@2.4.2
+node-releases@2.0.6
+psl@1.9.0
+winston@3.8.1

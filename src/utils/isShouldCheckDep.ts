@@ -1,11 +1,11 @@
-import cache, { MAX_DIFF } from '../constants';
+import CACHE, { MAX_DIFF_DAYS } from '../constants';
 
 import { getDiffDay } from './getDiffDay';
 
 export const isShouldCheckDep = (dependency: string) => {
-  if (!Object.prototype.hasOwnProperty.call(cache, dependency)) return true;
+  if (!Object.prototype.hasOwnProperty.call(CACHE, dependency)) return true;
 
-  const diffDays = getDiffDay(cache[dependency]);
+  const diffDays = getDiffDay(CACHE[dependency]);
 
-  return diffDays < MAX_DIFF;
+  return diffDays < MAX_DIFF_DAYS;
 };

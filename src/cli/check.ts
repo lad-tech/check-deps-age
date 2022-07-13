@@ -2,19 +2,19 @@ import { CommandModule } from 'yargs';
 
 import Checker from '../index';
 
-const check: CommandModule = {
+const check: CommandModule<Record<string, never>, { ignore: string }> = {
   aliases: ['$0'],
-  builder: (cmd) => {
-    return cmd.option('ignore', {
+  builder: (cmd) =>
+    cmd.option('ignore', {
       alias: 'i',
       describe: 'Path to ignore file',
-      type: 'array',
-    });
-  },
+      type: 'string',
+      default: './.checkdepsignore',
+    }),
   command: 'upload [options]',
   describe: 'Check deps',
   handler: (argv) => {
-    Checker.check(argv)
+    Checker.check({ ignore: argv.ignore })
       .then(() => {
         console.log('Well done!');
       })
