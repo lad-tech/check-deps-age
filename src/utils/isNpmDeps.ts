@@ -1,4 +1,6 @@
 import { INpmDeps, IOurNpmDeps } from '../types';
 
+import { isObjectHasOwnProperty } from './isObjectHasOwnProperty';
+
 export const isNpmDeps = (deps: INpmDeps | IOurNpmDeps): deps is INpmDeps =>
-  Object.prototype.hasOwnProperty.call(deps, 'time');
+  isObjectHasOwnProperty(deps, 'time');

@@ -7,61 +7,53 @@ import CACHE, { CACHE_PATH } from './constants';
 import { checker } from './utils/checker';
 
 const filetByIgnore = (arr: string[], ignoreRegexps: string[]) => {
-  return arr.filter((deps) =>
-    ignoreRegexps.reduce((previousValue, currentValue) => {
-      if (deps.match(currentValue)) return false;
-
-      return previousValue;
-    }, true)
-  );
+  return arr.filter((dep) => !ignoreRegexps.some((re) => dep.match(re)));
 };
 
-class Index {
-  check = async ({ ignore }: { ignore: string }) => {
-    let ignoreRegexps: string[] = [];
-    try {
-      logger.info('Reading ignore');
-      ignoreRegexps = fs
-        .readFileSync(ignore, { encoding: 'utf-8' })
-        .toString()
-        .trim()
-        .split('\n');
-      logger.debug('Ignore', ignoreRegexps);
-    } catch (e) {
-      logger.error(e);
-    }
+const check = async ({ ignore }: { ignore: string }) => {
+  let ignoreRegexps: string[] = [];
+  try {
+    logger.info('Reading ignore');
+    ignoreRegexps = fs
+      .readFileSync(ignore, { encoding: 'utf-8' })
+      .toString()
+      .trim()
+      .split('\n');
+    logger.debug('Ignore', ignoreRegexps);
+  } catch (e) {
+    logger.error(e);
+  }
 
-    const npmConfigArgvRaw = execSync('echo $npm_config_argv', {
-      encoding: 'utf-8',
-    });
+  const npmConfigArgvRaw = execSync('echo $npm_config_argv', {
+    encoding: 'utf-8',
+  });
 
-    // catch if someone does yarn add package and check it before install
-    if (npmConfigArgvRaw !== '\n') {
-      const npmConfigArgv: INpmConfigArgv = JSON.parse(npmConfigArgvRaw);
+  // catch if someone does yarn add package and check it before install
+  if (npmConfigArgvRaw !== '\n') {
+    const npmConfigArgv: INpmConfigArgv = JSON.parse(npmConfigArgvRaw);
 
-      logger.debug(npmConfigArgv.toString());
+    logger.debug(npmConfigArgv.toString());
 
-      npmConfigArgv.original.shift();
+    npmConfigArgv.original.shift();
 
-      await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
-    }
+    await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
+  }
 
-    const output = execSync(
-      "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*/ {print $2}' | grep -v '[├───└─│]'",
-      { encoding: 'utf-8' }
-    ).split('\n');
+  const output = execSync(
+    "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*/ {print $2}' | grep -v '[├───└─│]'",
+    { encoding: 'utf-8' }
+  ).split('\n');
 
-    // del empty deps from not perfect output
-    output.pop();
+  // del empty deps from not perfect output
+  output.pop();
 
-    logger.debug('found dependencies ', output);
+  logger.debug('found dependencies ', output);
 
-    await checker(filetByIgnore(output, ignoreRegexps));
+  await checker(filetByIgnore(output, ignoreRegexps));
 
-    // save cache
-    const data = new Uint8Array(Buffer.from(JSON.stringify(CACHE)));
-    fs.writeFileSync(CACHE_PATH, data, { encoding: 'utf-8', flag: 'w' });
-  };
-}
+  // save cache
+  const data = Buffer.from(JSON.stringify(CACHE));
+  fs.writeFileSync(CACHE_PATH, data, { encoding: 'utf-8', flag: 'w' });
+};
 
-export default new Index();
+export default check;
