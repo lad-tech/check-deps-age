@@ -56,4 +56,4 @@ const check = async ({ ignore }: { ignore: string }) => {
   fs.writeFileSync(CACHE_PATH, data, { encoding: 'utf-8', flag: 'w' });
 };
 
-export default check;
+export default { check };
