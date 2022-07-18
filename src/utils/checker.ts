@@ -3,6 +3,6 @@ import { checkDep } from './checkDep';
 
 export const checker = async (arr: string[]) => {
   for (const dependency of arr) {
-    isShouldCheckDep(dependency) && (await checkDep(dependency));
+    if (isShouldCheckDep(dependency)) await checkDep(dependency);
   }
 };

@@ -1,20 +1,28 @@
 import { CommandModule } from 'yargs';
 
 import Checker from '../index';
+import { ICheckParams } from '../types';
 
-const check: CommandModule<Record<string, never>, { ignore: string }> = {
+const check: CommandModule<Record<string, never>, ICheckParams> = {
   aliases: ['$0'],
   builder: (cmd) =>
-    cmd.option('ignore', {
-      alias: 'i',
-      describe: 'Path to ignore file',
-      type: 'string',
-      default: './.checkdepsignore',
+    cmd.options({
+      ignore: {
+        alias: 'i',
+        describe: 'Path to ignore file',
+        type: 'string',
+        default: './.checkdepsignore',
+      },
+      cacheFile: {
+        describe: 'Path to cache file',
+        type: 'string',
+        default: './checkdepscache.json',
+      },
     }),
   command: 'upload [options]',
   describe: 'Check deps',
   handler: (argv) => {
-    Checker.check({ ignore: argv.ignore })
+    Checker.check({ ignore: argv.ignore, cacheFile: argv.cacheFile })
       .then(() => {
         console.log('Well done!');
       })

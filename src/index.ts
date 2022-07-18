@@ -1,67 +1,61 @@
 import { execSync } from 'child_process';
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 
 import logger from './logger';
-import { INpmConfigArgv } from './types';
-import CACHE, { CACHE_PATH } from './constants';
+import { ICheckParams, INpmConfigArgv } from './types';
 import { checker } from './utils/checker';
+import { getCachePath, setCachePath, getCache } from './cache';
 
 const filetByIgnore = (arr: string[], ignoreRegexps: string[]) => {
-  return arr.filter((deps) =>
-    ignoreRegexps.reduce((previousValue, currentValue) => {
-      if (deps.match(currentValue)) return false;
-
-      return previousValue;
-    }, true)
-  );
+  return arr.filter((dep) => !ignoreRegexps.some((re) => dep.match(re)));
 };
 
-class Index {
-  check = async ({ ignore }: { ignore: string }) => {
-    let ignoreRegexps: string[] = [];
-    try {
-      logger.info('Reading ignore');
-      ignoreRegexps = fs
-        .readFileSync(ignore, { encoding: 'utf-8' })
-        .toString()
-        .trim()
-        .split('\n');
-      logger.debug('Ignore', ignoreRegexps);
-    } catch (e) {
-      logger.error(e);
-    }
+const check = async ({ ignore, cacheFile }: ICheckParams) => {
+  let ignoreRegexps: string[] = [];
 
-    const npmConfigArgvRaw = execSync('echo $npm_config_argv', {
-      encoding: 'utf-8',
-    });
+  await setCachePath(cacheFile);
 
-    // catch if someone does yarn add package and check it before install
-    if (npmConfigArgvRaw !== '\n') {
-      const npmConfigArgv: INpmConfigArgv = JSON.parse(npmConfigArgvRaw);
+  try {
+    logger.info('Reading ignore');
+    ignoreRegexps = (await fs.readFile(ignore, { encoding: 'utf-8' }))
+      .toString()
+      .trim()
+      .split('\n');
+    logger.debug('Ignore', ignoreRegexps);
+  } catch (e) {
+    logger.error(e);
+  }
 
-      logger.debug(npmConfigArgv.toString());
+  const npmConfigArgvRaw = execSync('echo $npm_config_argv', {
+    encoding: 'utf-8',
+  });
 
-      npmConfigArgv.original.shift();
+  // catch if someone does yarn add package and check it before install
+  if (npmConfigArgvRaw !== '\n') {
+    const npmConfigArgv: INpmConfigArgv = JSON.parse(npmConfigArgvRaw);
 
-      await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
-    }
+    logger.debug(npmConfigArgv.toString());
 
-    const output = execSync(
-      "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*/ {print $2}' | grep -v '[├───└─│]'",
-      { encoding: 'utf-8' }
-    ).split('\n');
+    npmConfigArgv.original.shift();
 
-    // del empty deps from not perfect output
-    output.pop();
+    await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
+  }
 
-    logger.debug('found dependencies ', output);
+  const output = execSync(
+    "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*/ {print $2}' | grep -v '[├───└─│]'",
+    { encoding: 'utf-8' }
+  ).split('\n');
 
-    await checker(filetByIgnore(output, ignoreRegexps));
+  // del empty deps from not perfect output
+  output.pop();
 
-    // save cache
-    const data = new Uint8Array(Buffer.from(JSON.stringify(CACHE)));
-    fs.writeFileSync(CACHE_PATH, data, { encoding: 'utf-8', flag: 'w' });
-  };
-}
+  logger.debug('found dependencies ', output);
 
-export default new Index();
+  await checker(filetByIgnore(output, ignoreRegexps));
+
+  // save cache
+  const data = Buffer.from(JSON.stringify(getCache()));
+  await fs.writeFile(getCachePath(), data, { encoding: 'utf-8', flag: 'w' });
+};
+
+export default { check };

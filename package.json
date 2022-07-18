@@ -1,10 +1,10 @@
 {
-  "name": "checkdeps",
+  "name": "@lad-tech/check-deps-age",
   "version": "1.0.0",
-  "description": "check dependencies",
+  "description": "check dependencies age",
   "main": "./dist/index.js",
   "bin": {
-    "checkdeps": "./dist/cli/index.js"
+    "@lad-tech/check-deps-age": "./dist/cli/index.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
