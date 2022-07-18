@@ -82,3 +82,8 @@ export interface INpmConfigArgv {
   cooked: string[]; // ['add'];
   original: string[]; // ['add', 'jest'];
 }
+
+export interface ICheckParams {
+  ignore: string;
+  cacheFile: string;
+}

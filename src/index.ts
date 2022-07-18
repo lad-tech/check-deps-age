@@ -1,21 +1,23 @@
 import { execSync } from 'child_process';
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 
 import logger from './logger';
-import { INpmConfigArgv } from './types';
-import CACHE, { CACHE_PATH } from './constants';
+import { ICheckParams, INpmConfigArgv } from './types';
 import { checker } from './utils/checker';
+import { getCachePath, setCachePath, getCache } from './cache';
 
 const filetByIgnore = (arr: string[], ignoreRegexps: string[]) => {
   return arr.filter((dep) => !ignoreRegexps.some((re) => dep.match(re)));
 };
 
-const check = async ({ ignore }: { ignore: string }) => {
+const check = async ({ ignore, cacheFile }: ICheckParams) => {
   let ignoreRegexps: string[] = [];
+
+  await setCachePath(cacheFile);
+
   try {
     logger.info('Reading ignore');
-    ignoreRegexps = fs
-      .readFileSync(ignore, { encoding: 'utf-8' })
+    ignoreRegexps = (await fs.readFile(ignore, { encoding: 'utf-8' }))
       .toString()
       .trim()
       .split('\n');
@@ -52,8 +54,8 @@ const check = async ({ ignore }: { ignore: string }) => {
   await checker(filetByIgnore(output, ignoreRegexps));
 
   // save cache
-  const data = Buffer.from(JSON.stringify(CACHE));
-  fs.writeFileSync(CACHE_PATH, data, { encoding: 'utf-8', flag: 'w' });
+  const data = Buffer.from(JSON.stringify(getCache()));
+  await fs.writeFile(getCachePath(), data, { encoding: 'utf-8', flag: 'w' });
 };
 
 export default { check };
