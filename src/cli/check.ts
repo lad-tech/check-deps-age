@@ -3,7 +3,7 @@ import { CommandModule } from 'yargs';
 import Checker from '../index';
 import { ICheckParams } from '../types';
 
-const check: CommandModule<Reco3rd<string, never>, ICheckParams> = {
+const check: CommandModule<Record<string, never>, ICheckParams> = {
   aliases: ['$0'],
   builder: (cmd) =>
     cmd.options({
