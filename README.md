@@ -4,7 +4,7 @@ Utility for detect too young dependency
 
 ### Development
 
-`tsc && checkdeps ./.checkdepsingore`
+`tsc && check-deps-age -i ./.checkdepsignore --cacheFile ./cd.json`
 
 ### Working with yarn because
 
