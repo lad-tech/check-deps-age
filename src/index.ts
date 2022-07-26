@@ -42,12 +42,13 @@ const check = async ({ ignore, cacheFile }: ICheckParams) => {
   }
 
   const output = execSync(
-    "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*\n/ {print $2}' | grep -v '[├───└─│]'",
+    "yarn list | awk '/[\\w|@|\\/|\\-]*@\\d*.\\d*.\\d*[-|\\w|\\d]*$/gm {print $2}' | grep -v '[├───└─│]'",
     { encoding: 'utf-8' }
   ).split('\n');
 
   // del empty deps from not perfect output
   output.pop();
+  output.shift();
 
   logger.debug('found dependencies ', output);
 
