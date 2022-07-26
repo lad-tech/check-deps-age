@@ -1,6 +1,6 @@
 {
   "name": "@lad-tech/check-deps-age",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "check dependencies age",
   "main": "./dist/index.js",
   "bin": {
@@ -12,9 +12,6 @@
   },
   "author": "Kirill Lebedev <lebedevki@lad24.ru>",
   "license": "MIT",
-  "publishConfig": {
-    "@npm:registry": "https://glab.lad24.ru/api/v4/projects/609/packages/npm/"
-  },
   "dependencies": {
     "dayjs": "^1.11.3",
     "winston": "^3.7.2",
