@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import logger from './logger';
 import { ICheckParams, INpmConfigArgv } from './types';
 import { checker } from './utils/checker';
-import { getCachePath, setCachePath, getCache } from './cache';
+import { setCachePath, saveCache } from './cache';
 
 const filetByIgnore = (arr: string[], ignoreRegexps: string[]) => {
   return arr.filter((dep) => !ignoreRegexps.some((re) => dep.match(re)));
@@ -53,9 +53,7 @@ const check = async ({ ignore, cacheFile }: ICheckParams) => {
 
   await checker(filetByIgnore(output, ignoreRegexps));
 
-  // save cache
-  const data = Buffer.from(JSON.stringify(getCache()));
-  await fs.writeFile(getCachePath(), data, { encoding: 'utf-8', flag: 'w' });
+  await saveCache();
 };
 
 export default { check };

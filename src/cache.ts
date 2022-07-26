@@ -22,3 +22,8 @@ export const setCachePath = async (cacheFile: string) => {
 export const getCachePath = () => CACHE_PATH;
 
 export const getCache = () => CACHE;
+
+export const saveCache = async () => {
+  const data = Buffer.from(JSON.stringify(getCache()));
+  await fs.writeFile(getCachePath(), data, { encoding: 'utf-8', flag: 'w' });
+};

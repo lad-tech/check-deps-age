@@ -2,6 +2,7 @@ import { CommandModule } from 'yargs';
 
 import Checker from '../index';
 import { ICheckParams } from '../types';
+import { saveCache } from '../cache';
 
 const check: CommandModule<Record<string, never>, ICheckParams> = {
   aliases: ['$0'],
@@ -28,7 +29,7 @@ const check: CommandModule<Record<string, never>, ICheckParams> = {
       })
       .catch((err: { message: string }) => {
         console.error('ERROR:', err.message);
-        process.exit(1);
+        saveCache().then(() => process.exit(1));
       });
   },
 };

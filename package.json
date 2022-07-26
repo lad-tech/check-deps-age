@@ -1,12 +1,18 @@
 {
   "name": "@lad-tech/check-deps-age",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "check dependencies age",
   "main": "./dist/index.js",
   "bin": {
     "@lad-tech/check-deps-age": "./dist/cli/index.js"
   },
   "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
