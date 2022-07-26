@@ -1,6 +1,6 @@
 {
   "name": "@lad-tech/check-deps-age",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "check dependencies age",
   "main": "./dist/index.js",
   "bin": {

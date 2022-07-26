@@ -42,7 +42,7 @@ const check = async ({ ignore, cacheFile }: ICheckParams) => {
   }
 
   const output = execSync(
-    "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*/ {print $2}' | grep -v '[├───└─│]'",
+    "yarn list | awk '/[\\w|@|\\/|\\-|.]*@\\d*.\\d*.\\d*[-|\\w|\\.|\\d]*\n/ {print $2}' | grep -v '[├───└─│]'",
     { encoding: 'utf-8' }
   ).split('\n');
 
