@@ -38,7 +38,12 @@ const check = async ({ ignore, cacheFile }: ICheckParams) => {
 
     npmConfigArgv.original.shift();
 
-    await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
+    // filter flags like --frozen-lock-file
+    const newOriginal = npmConfigArgv.original.filter(
+      (item) => !item.startsWith('-')
+    );
+
+    await checker(filetByIgnore(newOriginal, ignoreRegexps));
   }
 
   const output = execSync(
