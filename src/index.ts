@@ -6,7 +6,7 @@ import { ICheckParams, INpmConfigArgv } from './types';
 import { checker } from './utils/checker';
 import { setCachePath, saveCache } from './cache';
 
-const filetByIgnore = (arr: string[], ignoreRegexps: string[]) => {
+const filterByIgnore = (arr: string[], ignoreRegexps: string[]) => {
   return arr.filter((dep) => !ignoreRegexps.some((re) => dep.match(re)));
 };
 
@@ -38,7 +38,12 @@ const check = async ({ ignore, cacheFile }: ICheckParams) => {
 
     npmConfigArgv.original.shift();
 
-    await checker(filetByIgnore(npmConfigArgv.original, ignoreRegexps));
+    // filter flags like --frozen-lock-file
+    const newOriginal = npmConfigArgv.original.filter(
+      (item) => !item.startsWith('-')
+    );
+
+    await checker(filterByIgnore(newOriginal, ignoreRegexps));
   }
 
   const output = execSync(
@@ -52,7 +57,7 @@ const check = async ({ ignore, cacheFile }: ICheckParams) => {
 
   logger.debug('found dependencies ', output);
 
-  await checker(filetByIgnore(output, ignoreRegexps));
+  await checker(filterByIgnore(output, ignoreRegexps));
 
   await saveCache();
 };
